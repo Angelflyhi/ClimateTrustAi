@@ -397,13 +397,7 @@ export default function AboutPage() {
                           : "none",
                       transition: "background 0.15s",
                     }}
-                    onMouseEnter={(e) => {
-                      (e.currentTarget as HTMLElement).style.background =
-                        "rgba(255,255,255,0.02)";
-                    }}
-                    onMouseLeave={(e) => {
-                      (e.currentTarget as HTMLElement).style.background = "transparent";
-                    }}
+                    className="hover:bg-white/5"
                   >
                     <td
                       style={{
