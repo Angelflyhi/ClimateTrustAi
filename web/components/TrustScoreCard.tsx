@@ -4,11 +4,11 @@ import type { ReactNode } from "react";
 import type { TrustMetrics } from "@/lib/types";
 
 const GRADE_STYLES: Record<string, string> = {
-  A: "from-emerald-500/20 to-emerald-600/5 border-emerald-500/40 text-emerald-300",
-  B: "from-sky-500/20 to-sky-600/5 border-sky-500/40 text-sky-300",
-  C: "from-amber-500/20 to-amber-600/5 border-amber-500/40 text-amber-300",
-  D: "from-orange-500/20 to-orange-600/5 border-orange-500/40 text-orange-300",
-  F: "from-rose-500/20 to-rose-600/5 border-rose-500/40 text-rose-300",
+  A: "bg-emerald-950/30 border-emerald-500/40 text-emerald-300",
+  B: "bg-sky-950/30 border-sky-500/40 text-sky-300",
+  C: "bg-amber-950/30 border-amber-500/40 text-amber-300",
+  D: "bg-orange-950/30 border-orange-500/40 text-orange-300",
+  F: "bg-rose-950/30 border-rose-500/40 text-rose-300",
 };
 
 interface Props {
@@ -20,7 +20,7 @@ export function TrustScoreCard({ trust }: Props) {
   const improved = trust.correlation_after > trust.correlation_before;
 
   return (
-    <div className={`rounded-2xl border bg-gradient-to-br p-6 ${gradeStyle}`}>
+    <div className={`rounded-2xl border p-6 ${gradeStyle}`}>
       <div className="flex items-start justify-between">
         <div>
           <p className="text-xs font-medium uppercase tracking-widest text-slate-400">
