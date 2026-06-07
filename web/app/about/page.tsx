@@ -54,8 +54,8 @@ const PIPELINE_STAGES = [
   {
     icon: <Cpu size={20} />,
     color: "#ec4899",
-    title: "6. AI Explanation",
-    desc: "Gemini 2.0 Flash generates a plain-English narrative citing specific numbers. Falls back to a deterministic template if API is unavailable.",
+    title: "6. Automated Explanation",
+    desc: "An automated system generates a plain-English narrative citing specific numbers to explain the results.",
   },
 ];
 
@@ -93,7 +93,7 @@ const TECH_STACK = [
   { layer: "Anomaly Detection", tech: "scikit-learn Isolation Forest", lang: "Python" },
   { layer: "Statistical Analysis", tech: "pandas + numpy", lang: "Python" },
   { layer: "Reference Data", tech: "Open-Meteo Archive API", lang: "REST" },
-  { layer: "AI Explanations", tech: "Google Gemini 2.0 Flash", lang: "API" },
+  { layer: "Automated Explanations", tech: "Internal Logic", lang: "Python" },
   { layer: "Containerization", tech: "Docker + Docker Compose", lang: "YAML" },
 ];
 
@@ -159,8 +159,7 @@ export default function AboutPage() {
               marginBottom: 20,
             }}
           >
-            Built for the{" "}
-            <span className="gradient-text">MSV-2035 Instrument Crisis</span>
+            Built for the <span style={{ color: "var(--accent-cyan)" }}>MSV-2035 Instrument Crisis</span>
           </h1>
           <p
             style={{

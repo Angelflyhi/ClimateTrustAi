@@ -130,7 +130,6 @@ function TrustGauge({ score, grade }: { score: number; grade: string }) {
           <defs>
             <linearGradient id="gaugeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
               <stop offset="0%" stopColor="#3b82f6" />
-              <stop offset="50%" stopColor="#06b6d4" />
               <stop offset="100%" stopColor={color} />
             </linearGradient>
           </defs>
@@ -149,7 +148,7 @@ function TrustGauge({ score, grade }: { score: number; grade: string }) {
             cy="80"
             r="54"
             fill="none"
-            stroke="url(#gaugeGrad)"
+            stroke={color}
             strokeWidth="12"
             strokeLinecap="round"
             strokeDasharray={circumference}
@@ -451,7 +450,7 @@ export default function Home() {
                 width: 36,
                 height: 36,
                 borderRadius: 10,
-                background: "linear-gradient(135deg, #3b82f6, #06b6d4)",
+                background: "#3b82f6",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -462,7 +461,7 @@ export default function Home() {
             </div>
             <div>
               <div style={{ fontWeight: 700, fontSize: 16, letterSpacing: "-0.02em" }}>
-                ClimateTrust<span className="gradient-text"> AI</span>
+                ClimateTrust<span style={{ color: "var(--accent-cyan)" }}> AI</span>
               </div>
               <div style={{ fontSize: 11, color: "var(--text-muted)", letterSpacing: "0.05em" }}>
                 SENSOR VALIDATION PLATFORM
@@ -501,7 +500,7 @@ export default function Home() {
             transform: "translate(-50%, -50%)",
             width: 600,
             height: 400,
-            background: "radial-gradient(ellipse, rgba(59,130,246,0.08) 0%, transparent 70%)",
+            background: "rgba(59,130,246,0.05)",
             pointerEvents: "none",
           }}
         />
@@ -538,7 +537,7 @@ export default function Home() {
           >
             Validate Climate Sensor Data
             <br />
-            <span className="gradient-text">with AI-Powered Precision</span>
+            <span style={{ color: "var(--accent-cyan)" }}>with Advanced Precision</span>
           </h1>
 
           <p
@@ -551,7 +550,7 @@ export default function Home() {
             }}
           >
             Detect drift, spikes, and anomalies in real-time. Every sensor gets a{" "}
-            <strong style={{ color: "var(--text-primary)" }}>Trust Score</strong> and AI-written
+            <strong style={{ color: "var(--text-primary)" }}>Trust Score</strong> and automated
             explanation — ensuring data integrity for climate research.
           </p>
 
@@ -567,12 +566,12 @@ export default function Home() {
             {[
               { label: "Detection Methods", value: "3" },
               { label: "Trust Metrics", value: "6" },
-              { label: "AI Explanation", value: "Gemini" },
+              { label: "Explanation", value: "Automated" },
             ].map((s) => (
               <div key={s.label} style={{ textAlign: "center" }}>
                 <div
-                  className="mono gradient-text"
-                  style={{ fontSize: 28, fontWeight: 700 }}
+                  className="mono"
+                  style={{ fontSize: 28, fontWeight: 700, color: "var(--accent-cyan)" }}
                 >
                   {s.value}
                 </div>

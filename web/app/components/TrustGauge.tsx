@@ -50,20 +50,6 @@ export default function TrustGauge({ score, grade, size = 160 }: Props) {
           role="img"
           aria-label={`Trust score: ${score} out of 100, Grade ${grade}`}
         >
-          <defs>
-            <linearGradient
-              id={`gaugeGrad-${grade}`}
-              x1="0%"
-              y1="0%"
-              x2="100%"
-              y2="100%"
-            >
-              <stop offset="0%" stopColor="#3b82f6" />
-              <stop offset="50%" stopColor="#06b6d4" />
-              <stop offset="100%" stopColor={color} />
-            </linearGradient>
-          </defs>
-
           {/* Background track */}
           <circle
             cx={cx}
@@ -80,7 +66,7 @@ export default function TrustGauge({ score, grade, size = 160 }: Props) {
             cy={cy}
             r={r}
             fill="none"
-            stroke={`url(#gaugeGrad-${grade})`}
+            stroke={color}
             strokeWidth={size * 0.075}
             strokeLinecap="round"
             strokeDasharray={circumference}
