@@ -61,7 +61,7 @@ async def generate_explanation(
     calibration_meta: dict,
 ) -> dict[str, str]:
     fallback = _template_explanation(sensor_name, summary, trust, calibration_meta)
-    api_key = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
+    api_key = os.getenv("LLM_API_KEY") or os.getenv("GOOGLE_API_KEY")
 
     if not api_key:
         return {"text": fallback, "source": "template"}
@@ -93,6 +93,6 @@ Correlation before/after: {trust['correlation_before']} / {trust['correlation_af
             response.raise_for_status()
             data = response.json()
             text = data["candidates"][0]["content"]["parts"][0]["text"]
-            return {"text": text.strip(), "source": "gemini"}
+            return {"text": text.strip(), "source": "llm"}
     except Exception:
         return {"text": fallback, "source": "template"}

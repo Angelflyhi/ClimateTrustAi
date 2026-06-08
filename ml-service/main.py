@@ -20,7 +20,7 @@ from reference import fetch_reference
 
 app = FastAPI(
     title="ClimateTrust AI",
-    description="Agentic validation layer for environmental sensor data",
+    description="Automated validation pipeline for environmental sensor data",
     version="1.0.0",
 )
 

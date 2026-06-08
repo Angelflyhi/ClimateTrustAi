@@ -13,7 +13,7 @@ ClimateTrust AI is built as a two-service monorepo:
 │   · Trust Score Gauge                                           │
 │   · Recharts Timeseries                                         │
 │   · Anomaly Alerts List                                         │
-│   · AI Explanation Panel                                        │
+│   · Diagnostic Panel                                            │
 └──────────────────────────┬──────────────────────────────────────┘
                            │ HTTP (fetch / FormData)
                            ▼
@@ -27,8 +27,8 @@ ClimateTrust AI is built as a two-service monorepo:
 │       │                                               │         │
 │       │                                               ▼         │
 │       │                                         ┌──────────┐   │
-│       │                                         │  Agent   │   │
-│       │                                         │ (Gemini) │   │
+│       │                                         │Diagnostic│   │
+│       │                                         │  Module  │   │
 │       │                                         └──────────┘   │
 │       │                                                         │
 │       ▼                                                         │
@@ -79,6 +79,18 @@ When the sensor CSV already contains `reference_temp_c` (demo sensors):
 ```python
 merged = sensor_df  # skip external fetch for offline reliability
 ```
+
+---
+
+### 2a. Edge Case Handling: Sparse or Unavailable Reference Data
+
+In remote or off-grid areas, high-resolution Open-Meteo satellite/reanalysis data might be sparse or temporally misaligned. The system handles this gracefully:
+
+1.  **Tolerance Window Limit**: `pd.merge_asof` restricts matching to a strict `tolerance="1h"`. If the reference data gap exceeds this, the row receives `NaN` for reference temperature.
+2.  **Graceful Degradation**: 
+    - The **Rolling Z-Score** (Spikes) continues to function normally (univariate).
+    - The **Drift Detection** and **Isolation Forest** require reference data. They simply skip evaluation for rows with missing reference values, avoiding false positives.
+3.  **Trust Score Penalty Bound**: If `<50%` of rows have reference data, the calibration engine aborts (`applied: false`). The trust score is conservatively lower-bounded and flagged with an explanation that reference overlap was insufficient, ensuring users don't mistake an "unverifiable" sensor for a "broken" one.
 
 ---
 
@@ -153,21 +165,21 @@ Grades: `A >= 85  ·  B >= 70  ·  C >= 50  ·  D >= 30  ·  F < 30`
 
 ---
 
-### 6. AI Explanation Agent (`agent.py`)
+### 6. Diagnostic Engine (`agent.py`)
 
-Builds a structured prompt from all pipeline outputs and calls the Gemini API:
+Builds a structured prompt from all pipeline outputs and calls the LLM API:
 
 ```
-Model: gemini-2.0-flash
+Model: LLM provider
 Prompt includes: sensor name, trust score, drift magnitude,
                  anomaly counts, calibration results, correlation
 ```
 
 Falls back to a deterministic template string if:
-- `GEMINI_API_KEY` is not set
+- LLM API key is not set
 - The API call fails (any exception)
 
-The `source` field in the response (`"gemini"` vs `"template"`) is surfaced in the UI.
+The `source` field in the response (`"llm"` vs `"template"`) is surfaced in the UI.
 
 ---
 
@@ -207,7 +219,7 @@ services:
     build: { context: ., dockerfile: Dockerfile.ml }
     ports: ["8000:8000"]
     environment:
-      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - LLM_API_KEY=${LLM_API_KEY}
     volumes:
       - ./data:/app/data
 
@@ -234,7 +246,7 @@ services:
 ### Railway / Render (ML Service)
 1. Set root directory to `ml-service/`
 2. Start command: `uvicorn main:app --host 0.0.0.0 --port 8000`
-3. Set env var: `GEMINI_API_KEY=<your-key>` (optional)
+3. Set env var: `LLM_API_KEY=<your-key>` (optional)
 
 ---
 
@@ -245,5 +257,18 @@ services:
 | Demo sensor analysis | < 200ms | No external API call |
 | CSV upload + Open-Meteo | 1–4s | Network-dependent |
 | Isolation Forest (168 rows) | ~50ms | sklearn, in-process |
-| Gemini explanation | 1–3s | Free tier |
+| LLM explanation | 1–3s | External call |
 | Template explanation | < 1ms | Fallback |
+
+---
+
+## Scalability & Roadmap (National Sensor Registry)
+
+The current architecture is an MVP tailored for batch CSV ingestion. Moving toward a "National Sensor Registry" requires a transition from synchronous batch processing to real-time streaming ingestion. 
+
+### Future Streaming Architecture:
+1.  **Ingestion Layer**: IoT webhooks and MQTT brokers (e.g., AWS IoT Core or Eclipse Mosquitto) will receive live sensor telemetry.
+2.  **Streaming Pipeline**: Real-time event streaming via **Apache Kafka** or **Redpanda** will handle high-throughput data streams.
+3.  **Time-Series Database**: Instead of in-memory Pandas dataframes, sensor telemetry will be persisted in a specialised TSDB like **TimescaleDB** or **ClickHouse**. This enables efficient windowing queries and downsampling for millions of sensors.
+4.  **Continuous Calibration**: The anomaly detection and calibration models will transition from static batch fits to online learning algorithms (e.g., River ML), continuously updating their drift estimates.
+5.  **Reference Anchor Network**: Instead of purely relying on Open-Meteo, IMD (Indian Meteorological Department) research-grade stations will act as "Level 1 Anchors", continuously providing localized ground truth to dynamically calibrate thousands of surrounding "Level 2" (commercial) and "Level 3" (citizen/low-cost) sensors.

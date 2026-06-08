@@ -20,7 +20,7 @@ There is **no accessible validation layer** that checks whether sensor data is t
 
 ## What ClimateTrust AI Does
 
-ClimateTrust AI is an **agentic validation platform** for environmental sensor data. It:
+ClimateTrust AI is an **automated validation pipeline** for environmental sensor data. It:
 
 1. **Ingests** time-series sensor readings via CSV upload or pre-loaded demo sensors
 2. **Cross-validates** against satellite-grade reference data from [Open-Meteo](https://open-meteo.com) (no API key needed)
@@ -30,7 +30,7 @@ ClimateTrust AI is an **agentic validation platform** for environmental sensor d
    - Isolation Forest (scikit-learn) for multivariate pattern anomalies
 4. **Calibrates** the sensor with a drift-detrend + affine correction
 5. **Scores** each sensor batch with a **Trust Score (0–100)** and letter grade
-6. **Explains** every finding in plain English using the Gemini AI agent
+6. **Explains** every finding in plain English using the diagnostic explanation engine
 
 ---
 
@@ -114,7 +114,7 @@ STEMINATE HACKS 2026/
 │   ├── calibrator.py          # Drift correction
 │   ├── trust_score.py         # 0–100 scoring
 │   ├── reference.py           # Open-Meteo integration
-│   ├── agent.py               # Gemini AI explainability
+│   ├── agent.py               # LLM diagnostic explainability
 │   └── requirements.txt
 │
 ├── data/
@@ -204,8 +204,8 @@ Grades: A ≥ 85 · B ≥ 70 · C ≥ 50 · D ≥ 30 · F < 30
 | Variable | Required | Description |
 |---|---|---|
 | `NEXT_PUBLIC_ML_URL` | No | ML service URL (default: `http://localhost:8000`) |
-| `GEMINI_API_KEY` | No | Enables AI explanations (template fallback if absent) |
-| `GOOGLE_API_KEY` | No | Alternative to `GEMINI_API_KEY` |
+| `LLM_API_KEY` | No | Enables diagnostic explanations (template fallback if absent) |
+| `GOOGLE_API_KEY` | No | Alternative to `LLM_API_KEY` |
 
 Create `web/.env.local`:
 ```
@@ -223,7 +223,7 @@ NEXT_PUBLIC_ML_URL=http://localhost:8000
 | ML API | FastAPI + uvicorn | Async Python with auto-generated OpenAPI docs |
 | Anomaly Detection | scikit-learn (Isolation Forest) + pandas | No GPU needed, interpretable |
 | Reference Data | Open-Meteo Archive API | Free, global, satellite-grade, no API key |
-| AI Explanations | Google Gemini 2.0 Flash | Free tier, context-aware narrative |
+| Diagnostic Explanations | Google Gemini 2.0 Flash | Free tier, context-aware narrative |
 | Containerization | Docker + Docker Compose | Reproducible demo environment |
 
 ---
@@ -246,9 +246,20 @@ See [`docs/ETHICS.md`](docs/ETHICS.md) for full details. In brief:
 - **Citizen scientists** contributing to environmental monitoring gaps gain credibility
 - **Policy makers** receive data with attached integrity certificates
 
-**Roadmap:** Real-time IoT webhooks → IMD station integration → National sensor registry
+## Scalability & Roadmap (National Sensor Registry)
+
+While the MVP validates uploaded CSVs, the architecture is designed to scale into a real-time **National Sensor Registry**:
+- **Real-time IoT Webhooks:** Transitioning from batch ingestion to event streaming (Kafka/Redpanda).
+- **Time-Series Database:** Shifting from in-memory processing to a specialized TSDB (TimescaleDB/ClickHouse) for high-throughput anomaly detection across millions of devices.
+- **IMD Station Anchors:** Integrating high-fidelity Indian Meteorological Department stations as dynamic "Level 1" anchors to automatically calibrate surrounding community sensors.
 
 ---
+
+## Edge Cases: Sparse Reference Data
+
+For remote or off-grid deployments where Open-Meteo satellite/reanalysis data might be sparse or temporally misaligned, the system degrades gracefully:
+- **Missing Data Handling:** Strict tolerance windows prevent false calibrations. The system skips multivariate anomaly checks for unreferenced timestamps rather than failing.
+- **Trust Score Bounding:** If reference overlap is insufficient (<50%), calibration is aborted (`applied: false`), and the trust score is conservatively bound to ensure users don't mistake an "unverifiable" sensor for a "broken" one.
 
 ## Pitch Video Script
 

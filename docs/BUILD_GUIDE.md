@@ -97,15 +97,15 @@ NEXT_PUBLIC_ML_URL=http://localhost:8000
 
 ---
 
-## 5. Optional — Enable AI explanations (Gemini)
+## 5. Optional — Enable diagnostic explanations (LLM)
 
 Without a key, the system falls back to deterministic template explanations.
 
 ```bash
 # In ml-service, set environment variable:
-$env:GEMINI_API_KEY="your-key-here"   # PowerShell
+$env:LLM_API_KEY="your-key-here"   # PowerShell
 # or
-export GEMINI_API_KEY="your-key-here"  # bash
+export LLM_API_KEY="your-key-here"  # bash
 ```
 
 Get a free key at https://ai.google.dev/
@@ -203,7 +203,7 @@ STEMINATE HACKS 2026/
 │   ├── calibrator.py           # Drift correction
 │   ├── trust_score.py          # Scoring formula
 │   ├── reference.py            # Open-Meteo client
-│   ├── agent.py                # Gemini explainability
+│   ├── agent.py                # LLM diagnostic explainability
 │   └── requirements.txt
 │
 ├── data/
@@ -236,7 +236,7 @@ STEMINATE HACKS 2026/
 1. New project → Deploy from GitHub repo
 2. Set root directory to `ml-service/`
 3. Set start command: `python -m uvicorn main:app --host 0.0.0.0 --port $PORT`
-4. Add env var: `GEMINI_API_KEY=<your-key>` (optional)
+4. Add env var: `LLM_API_KEY=<your-key>` (optional)
 5. Add a volume mount for the `data/samples/` directory
 
 ### Pre-generate data before deploy
@@ -268,7 +268,7 @@ The Railway service needs the `data/samples/` CSVs present. Either:
 3. Point out: Trust Score ~42 (Grade D), drift +3.8°C, 21 anomalies
 4. Click **Temperature** chart tab → show sensor vs reference gap
 5. Click **Deviation** tab → show systematic drift line
-6. Read the AI explanation panel
+6. Read the diagnostic explanation panel
 7. Click **Download JSON Report**
 8. Switch to Sensor A (clean) → show Grade A, ~0 anomalies, high correlation
 

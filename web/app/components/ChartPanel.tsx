@@ -24,6 +24,7 @@ type Tab = "temperature" | "humidity" | "deviation";
 interface ChartPoint extends TimeseriesPoint {
   label: string;
   deviation: number | null;
+  diff: number | null;
 }
 
 function CustomTooltip({ active, payload, label }: any) {
@@ -103,10 +104,15 @@ export default function ChartPanel({ timeseries, anomalyCount }: Props) {
       p.temp_c != null && p.reference_temp_c != null
         ? Math.round((p.temp_c - p.reference_temp_c) * 100) / 100
         : null;
+    const diff =
+      p.corrected_temp_c != null && p.temp_c != null
+        ? Math.round((p.corrected_temp_c - p.temp_c) * 100) / 100
+        : null;
     return {
       ...p,
       label: dt.toISOString(),
       deviation,
+      diff,
     };
   });
 
@@ -116,10 +122,13 @@ export default function ChartPanel({ timeseries, anomalyCount }: Props) {
       .map((p) => p.label)
   );
 
+  type Tab = "temperature" | "humidity" | "deviation" | "diff";
+
   const tabs: { id: Tab; label: string }[] = [
     { id: "temperature", label: "Temperature" },
     { id: "humidity", label: "Humidity" },
     { id: "deviation", label: "Deviation" },
+    { id: "diff", label: "Calibration Diff" },
   ];
 
   const xTickFormatter = (val: string) => {
@@ -227,6 +236,12 @@ export default function ChartPanel({ timeseries, anomalyCount }: Props) {
             <LegendItem color="rgba(239,68,68,0.3)" label="Zero line" dashed />
           </>
         )}
+        {activeTab === "diff" && (
+          <>
+            <LegendItem color="#10b981" label="Correction Applied (°C)" />
+            <LegendItem color="rgba(239,68,68,0.3)" label="Zero line (No change)" dashed />
+          </>
+        )}
       </div>
 
       {/* Chart */}
@@ -327,6 +342,22 @@ export default function ChartPanel({ timeseries, anomalyCount }: Props) {
                 dot={false}
                 strokeWidth={2}
                 activeDot={{ r: 4, fill: "#f59e0b" }}
+                connectNulls
+              />
+            </>
+          )}
+
+          {activeTab === "diff" && (
+            <>
+              <ReferenceLine y={0} stroke="rgba(239,68,68,0.3)" strokeDasharray="5 3" />
+              <Line
+                type="monotone"
+                dataKey="diff"
+                name="Correction Applied"
+                stroke="#10b981"
+                dot={false}
+                strokeWidth={2}
+                activeDot={{ r: 4, fill: "#10b981" }}
                 connectNulls
               />
             </>
